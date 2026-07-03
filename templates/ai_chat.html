@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Bridge - AI Assistant</title>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{{ url_for('home') }}">📚 Book Bridge</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navMenu">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('home') }}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('add_book') }}">Add Book</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('view_books') }}">View Books</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('ask_ai') }}">Ask AI</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="{{ url_for('ai_assistant_page') }}">AI Assistant</a></li>
+                    {% if session.get('user_id') %}
+                    <li class="nav-item"><span class="nav-link">Hi, {{ session.get('user_name') }}</span></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Logout</a></li>
+                    {% else %}
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}">Login</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('register') }}">Register</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    <div class="container mt-3">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-md-9 col-lg-7">
+                <div class="card shadow">
+                    <div class="card-body p-4">
+                        <h3 class="mb-2 text-center">🎓 Book Bridge AI Assistant</h3>
+                        <p class="text-muted text-center mb-4">
+                            Your Library Assistant Agent — powered by Google Gemini.
+                            Ask about registering, logging in, adding or searching for
+                            books, contacting an owner, or get a book recommendation.
+                        </p>
+
+                        <!-- Chat log -->
+                        <div id="chatLog" class="border rounded p-3 mb-3" style="height: 360px; overflow-y: auto; background-color: #f8f9fa;">
+                            <div class="mb-2">
+                                <span class="badge bg-secondary">Library Assistant</span>
+                                <span>Hi! I'm your Book Bridge Library Assistant. Ask me anything about the platform, or tell me what kind of books you enjoy and I can recommend some!</span>
+                            </div>
+                        </div>
+
+                        <!-- Typing indicator -->
+                        <div id="typingIndicator" class="text-muted small mb-2" style="display:none;">
+                            Library Assistant is typing...
+                        </div>
+
+                        <!-- Question form -->
+                        <form id="chatForm" class="d-flex">
+                            <input type="text" id="chatInput" class="form-control me-2"
+                                   placeholder="Type your message..." autocomplete="off" required>
+                            <button type="submit" class="btn btn-primary" id="sendBtn">Send</button>
+                        </form>
+
+                        <!-- Quick suggestion buttons -->
+                        <div class="mt-3">
+                            <span class="text-muted small">Try:</span>
+                            <button type="button" class="btn btn-sm btn-outline-secondary mt-1 quick-question">What is Book Bridge?</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary mt-1 quick-question">How do I add a book?</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary mt-1 quick-question">How do I contact a book owner?</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary mt-1 quick-question">I love mystery novels, any recommendations?</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white text-center py-3">
+        <p class="mb-0">&copy; 2026 Book Bridge Platform </p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+    <!-- Chat page logic (kept local to this page; existing script.js is untouched) -->
+    <script>
+        const chatLog = document.getElementById("chatLog");
+        const chatForm = document.getElementById("chatForm");
+        const chatInput = document.getElementById("chatInput");
+        const sendBtn = document.getElementById("sendBtn");
+        const typingIndicator = document.getElementById("typingIndicator");
+
+        function appendMessage(sender, text, badgeClass) {
+            const wrapper = document.createElement("div");
+            wrapper.className = "mb-2";
+            wrapper.innerHTML = `<span class="badge ${badgeClass}">${sender}</span> <span></span>`;
+            wrapper.querySelector("span:last-child").textContent = text;
+            chatLog.appendChild(wrapper);
+            chatLog.scrollTop = chatLog.scrollHeight;
+        }
+
+        async function sendMessage(message) {
+            if (!message.trim()) return;
+            appendMessage("You", message, "bg-primary");
+
+            sendBtn.disabled = true;
+            typingIndicator.style.display = "block";
+
+            try {
+                const response = await fetch("{{ url_for('ai_assistant_chat') }}", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: "question=" + encodeURIComponent(message)
+                });
+                const data = await response.json();
+                appendMessage("Library Assistant", data.answer, "bg-success");
+            } catch (err) {
+                appendMessage("Library Assistant", "Sorry, something went wrong. Please try again.", "bg-success");
+            } finally {
+                sendBtn.disabled = false;
+                typingIndicator.style.display = "none";
+            }
+        }
+
+        chatForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+            const message = chatInput.value;
+            chatInput.value = "";
+            sendMessage(message);
+        });
+
+        document.querySelectorAll(".quick-question").forEach(function (button) {
+            button.addEventListener("click", function () {
+                sendMessage(button.textContent);
+            });
+        });
+    </script>
+</body>
+</html>

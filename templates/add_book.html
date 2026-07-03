@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Bridge - Add Book</title>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{{ url_for('home') }}">📚 Book Bridge</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navMenu">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('home') }}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="{{ url_for('add_book') }}">Add Book</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('view_books') }}">View Books</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('ask_ai') }}">Ask AI</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('ai_assistant_page') }}">AI Assistant</a></li>
+                    {% if session.get('user_id') %}
+                    <li class="nav-item"><span class="nav-link">Hi, {{ session.get('user_name') }}</span></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Logout</a></li>
+                    {% else %}
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}">Login</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('register') }}">Register</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    <div class="container mt-3">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="card shadow">
+                    <div class="card-body p-4">
+                        <h3 class="mb-4 text-center">📖 Add a Book to Share</h3>
+
+                        <!-- Book form with basic client-side validation (see script.js) -->
+                        <form id="bookForm" method="POST" action="{{ url_for('add_book') }}" novalidate>
+                            <div class="mb-3">
+                                <label for="title" class="form-label">Book Title *</label>
+                                <input type="text" class="form-control" id="title" name="title" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="author" class="form-label">Author *</label>
+                                <input type="text" class="form-control" id="author" name="author" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="category" class="form-label">Category *</label>
+                                <select class="form-select" id="category" name="category" required>
+                                    <option value="" disabled selected>Select a category</option>
+                                    <option value="Fiction">Fiction</option>
+                                    <option value="Non-Fiction">Non-Fiction</option>
+                                    <option value="Academic">Academic</option>
+                                    <option value="Children">Children</option>
+                                    <option value="Biography">Biography</option>
+                                    <option value="Science">Science</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Description</label>
+                                <textarea class="form-control" id="description" name="description" rows="3" placeholder="Condition, edition, or any notes about the book"></textarea>
+                            </div>
+
+                            <hr>
+                            <h5 class="mb-3">Owner Contact Details</h5>
+
+                            <div class="mb-3">
+                                <label for="owner_name" class="form-label">Your Name *</label>
+                                <input type="text" class="form-control" id="owner_name" name="owner_name" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="owner_contact" class="form-label">Contact (Phone or Email) *</label>
+                                <input type="text" class="form-control" id="owner_contact" name="owner_contact" required>
+                            </div>
+
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg">Add Book</button>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white text-center py-3">
+        <p class="mb-0">&copy; 2026 Book Bridge Platform </p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

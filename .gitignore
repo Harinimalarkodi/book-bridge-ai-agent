@@ -1,0 +1,12 @@
+# Environment variables (contains MONGO_URI and GROQ_API_KEY)
+.env
+
+# ChromaDB local vector store data
+chroma_db/
+
+# Python
+__pycache__/
+*.pyc
+
+# Virtual environment
+venv/

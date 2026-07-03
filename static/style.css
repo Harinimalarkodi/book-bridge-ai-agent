@@ -1,0 +1,42 @@
+/* ---------------------------------------------------
+   Book Bridge Platform - Custom Styles
+--------------------------------------------------- */
+
+body {
+    background-color: #f5f7fa;
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+/* Hero section on the home page */
+.hero-section {
+    background: linear-gradient(135deg, #4e73df, #224abe);
+}
+
+/* Card hover effect for book listings */
+.card {
+    border: none;
+    border-radius: 10px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+    font-size: 1.4rem;
+}
+
+footer {
+    margin-top: auto;
+}
+
+/* Make the whole page at least full height so footer sits nicely */
+html, body {
+    height: 100%;
+}
+
+.badge {
+    font-size: 0.8rem;
+}

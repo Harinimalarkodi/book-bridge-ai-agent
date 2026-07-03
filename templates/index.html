@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Bridge - Home</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{{ url_for('home') }}">📚 Book Bridge</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navMenu">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('home') }}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('add_book') }}">Add Book</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('view_books') }}">View Books</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('ask_ai') }}">Ask AI</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('ai_assistant_page') }}">AI Assistant</a></li>
+                    {% if session.get('user_id') %}
+                    <li class="nav-item"><span class="nav-link">Hi, {{ session.get('user_name') }}</span></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Logout</a></li>
+                    {% else %}
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}">Login</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('register') }}">Register</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    <div class="container mt-3">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Hero Section -->
+    <div class="hero-section text-center text-white">
+        <div class="container py-5">
+            <h1 class="display-5 fw-bold">Give Your Books a Second Home</h1>
+            <p class="lead">Share books you no longer need, or find your next great read from someone nearby.</p>
+            <a href="{{ url_for('add_book') }}" class="btn btn-light btn-lg me-2">Add a Book</a>
+            <a href="{{ url_for('view_books') }}" class="btn btn-outline-light btn-lg">Browse Books</a>
+        </div>
+    </div>
+
+    <!-- Stats + How it works -->
+    <div class="container my-5">
+        <div class="row text-center mb-5">
+            <div class="col-md-4">
+                <div class="card shadow-sm p-4">
+                    <h2 class="fw-bold text-primary">{{ total_books }}</h2>
+                    <p class="mb-0">Books Listed</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow-sm p-4">
+                    <h2 class="fw-bold text-primary">1</h2>
+                    <p class="mb-0">Simple Steps to List</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow-sm p-4">
+                    <h2 class="fw-bold text-primary">Free</h2>
+                    <p class="mb-0">Always Free to Use</p>
+                </div>
+            </div>
+        </div>
+
+        <h3 class="mb-4 text-center">Recently Added Books</h3>
+        {% if recent_books %}
+        <div class="row">
+            {% for book in recent_books %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ book['title'] }}</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">by {{ book['author'] }}</h6>
+                        <span class="badge bg-info text-dark mb-2">{{ book['category'] }}</span>
+                        <p class="card-text">{{ book['description'] or 'No description provided.' }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-center text-muted">No books added yet. Be the first to share one!</p>
+        {% endif %}
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white text-center py-3">
+        <p class="mb-0">&copy; 2026 Book Bridge Platform | College Mini Project</p>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
