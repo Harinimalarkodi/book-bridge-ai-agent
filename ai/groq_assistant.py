@@ -29,6 +29,7 @@ Setup:
 """
 
 import os
+import traceback
 from dotenv import load_dotenv
 from groq import Groq
 
@@ -184,5 +185,6 @@ def ask_library_assistant(question: str) -> str:
             ],
         )
         return completion.choices[0].message.content
-    except Exception as exc:  # network issues, missing/invalid key, etc.
-        return f"Library Assistant Agent is currently unavailable: {exc}"
+
+    except Exception:
+        return traceback.format_exc()
